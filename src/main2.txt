@@ -1,0 +1,74 @@
+ #include "Arduino.h"
+ 
+ #define COUNT_LOW 0
+ #define COUNT_HIGH 40
+
+ #define TIMER_WIDTH 16
+
+#include "esp32-hal-ledc.h"
+
+void driveServo(void* pvParameter);
+
+void setup() {
+   ledcSetup(3, 50, TIMER_WIDTH); // channel 1, 50 Hz, 16-bit width
+   ledcAttachPin(14, 3);   // GPIO 22 assigned to channel 1
+
+    pinMode(16, OUTPUT);
+
+
+   xTaskCreate(
+                    driveServo,          /* Task function. */
+                    "driveServo",        /* String with name of task. */
+                    10000,            /* Stack size in bytes. */
+                    NULL,             /* Parameter passed as input of the task */
+                    1,                /* Priority of the task. */
+                    NULL);            /* Task handle. */
+}
+
+void loop() {
+//    for (int i=COUNT_LOW ; i < COUNT_HIGH ; i=i+1)
+//    {
+//       ledcWrite(3, i);       // sweep servo 3
+//       delay(100);
+//    }
+
+
+    //  ledcWrite(3,2222);
+    // digitalWrite(16, HIGH);
+    
+    // delay(500);
+
+    // ledcWrite(3,4444);
+    // digitalWrite(16, LOW);
+    
+    // delay(500);
+
+
+}
+
+void driveServo(void* pvParameter){
+
+    uint32_t duty;
+    while(1)
+    {
+
+        duty = (((0/180.0)
+              *2000)/20000.0*65536.0) + 1634;
+        //  convert 0-180 degrees to 0-65536
+
+        ledcWrite(3,duty);
+        digitalWrite(16, HIGH);
+        
+        vTaskDelay(1000 / portTICK_RATE_MS);
+
+        duty = (((180/180.0)
+                  *2000)/20000.0*65536.0) + 1634;
+                //  convert 0-180 degrees to 0-65536
+
+        ledcWrite(3,duty);
+        digitalWrite(16, LOW);
+        
+        vTaskDelay(1000 / portTICK_RATE_MS);
+    }
+
+}
